@@ -1,4 +1,4 @@
-// Generated from C:/Users/resul/Desktop/all/compilerbau antlr/src/antlr\Expr.g4 by ANTLR 4.10.1
+// Generated from java-escape by ANTLR 4.11.1
 package Parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -16,6 +16,12 @@ public interface ExprVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCompilationUnit(ExprParser.CompilationUnitContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExprParser#mainCaller}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMainCaller(ExprParser.MainCallerContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ExprParser#methodCaller}.
 	 * @param ctx the parse tree
@@ -65,11 +71,17 @@ public interface ExprVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitReturner(ExprParser.ReturnerContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ExprParser#localvariableCaller}.
+	 * Visit a parse tree produced by {@link ExprParser#localvariableInit}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitLocalvariableCaller(ExprParser.LocalvariableCallerContext ctx);
+	T visitLocalvariableInit(ExprParser.LocalvariableInitContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExprParser#variableVis}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitVariableVis(ExprParser.VariableVisContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ExprParser#printCall}.
 	 * @param ctx the parse tree

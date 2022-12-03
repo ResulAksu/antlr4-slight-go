@@ -55,23 +55,18 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
     }
 
     @Override
-    public Expression visitLocalvariableCaller(ExprParser.LocalvariableCallerContext ctx) {
+    public Expression visitMainCaller(ExprParser.MainCallerContext ctx) {
+        return super.visitMainCaller(ctx);
+    }
 
-        String var = ctx.getChild(0).getText();
-        //check if var is already declared, if no add in List, if add in semantic errors list
-        if(var.equals("var")){
-            Token tk = ctx.nameGiver().get(0).LETTER().get(0).getSymbol();
-            int lineTk = tk.getLine();
-            String id = ctx.getChild(1).getChild(0).getChild(0).getText();
-            if(!vars.contains(id)){
-                vars.add(id);
-            }else {
-                semanticErrors.add("Error: variable" + id + "already declared in Line: " + tk.getLine());
-            }
-        }
-        //check if variable after ASSERT is already declared
+    @Override
+    public Expression visitLocalvariableInit(ExprParser.LocalvariableInitContext ctx) {
+        return super.visitLocalvariableInit(ctx);
+    }
 
-        return super.visitLocalvariableCaller(ctx);
+    @Override
+    public Expression visitVariableVis(ExprParser.VariableVisContext ctx) {
+        return super.visitVariableVis(ctx);
     }
 
     @Override
@@ -101,11 +96,28 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
 
     @Override
     public Expression visitIntliteral(ExprParser.IntliteralContext ctx) {
+        String literal = ctx.getChild(0).getText();
+        Token t = ctx.DIGITINCL().get(0).getSymbol();
+        int line = t.getLine();
+        try {
+           Integer.parseInt(literal);
+        } catch (NumberFormatException e){
+            semanticErrors.add("Error: variable wrong type at Line: "+ line);
+        }
         return super.visitIntliteral(ctx);
     }
 
     @Override
     public Expression visitFloatliteral(ExprParser.FloatliteralContext ctx) {
+        String literal = ctx.getChild(0).getText();
+        Token t = ctx.DIGITINCL().get(0).getSymbol();
+        int line = t.getLine();
+        try {
+            Float.parseFloat(literal);
+        } catch (NumberFormatException e){
+            semanticErrors.add("Error: variable wrong type at Line: "+ line);
+        }
+
         return super.visitFloatliteral(ctx);
     }
 

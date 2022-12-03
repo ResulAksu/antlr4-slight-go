@@ -55,12 +55,14 @@ RETURN: 'return';
 
 
 compilationUnit
-    : packageProdcution importProduction  methodCaller+
+    : packageProdcution importProduction mainCaller methodCaller*
     ;
 
+mainCaller
+    : FUNC MAIN LEFTPAR RIGHTPAR block;
+
 methodCaller
-    : FUNC MAIN LEFTPAR RIGHTPAR block
-    | FUNC nameGiver LEFTPAR methodMember* RIGHTPAR type block
+    : FUNC nameGiver LEFTPAR methodMember* RIGHTPAR type block
     ;
 
 methodMember
@@ -72,7 +74,7 @@ block
     ;
 
 blockStatements
-    : localvariableCaller |if_and_or_else_expression |for_loop | printCall | methodCall | returner;
+    : localvariableInit |if_and_or_else_expression |for_loop | printCall | methodCall | returner | variableVis;
 
 //Hier weiter machen
 if_and_or_else_expression
@@ -87,12 +89,14 @@ bool_statement
 returner
     : RETURN (methodCall| nameGiver | typeProduction | arithmetics)+;
 
-localvariableCaller
+localvariableInit
     : VAR nameGiver type ASSERT (typeProduction|nameGiver) (arithmetics (nameGiver|typeProduction))*
-    | nameGiver ASSERT methodCall (arithmetics typeProduction | arithmetics nameGiver | arithmetics methodCall)*
-    | nameGiver ASSERT (typeProduction | nameGiver) (arithmetics typeProduction | arithmetics nameGiver | arithmetics methodCall)*
-
     ;
+
+variableVis
+    :    nameGiver ASSERT methodCall (arithmetics typeProduction | arithmetics nameGiver | arithmetics methodCall)*
+       | nameGiver ASSERT (typeProduction | nameGiver) (arithmetics typeProduction | arithmetics nameGiver | arithmetics methodCall)*
+      ;
 
 printCall:
     FMT DOT PRINT_LN LEFTPAR (methodCall | stringliteral | nameGiver)  RIGHTPAR;

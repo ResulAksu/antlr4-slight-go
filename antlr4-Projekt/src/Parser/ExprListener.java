@@ -1,4 +1,4 @@
-// Generated from C:/Users/resul/Desktop/all/compilerbau antlr/src/antlr\Expr.g4 by ANTLR 4.10.1
+// Generated from java-escape by ANTLR 4.11.1
 package Parser;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -17,6 +17,16 @@ public interface ExprListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCompilationUnit(ExprParser.CompilationUnitContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprParser#mainCaller}.
+	 * @param ctx the parse tree
+	 */
+	void enterMainCaller(ExprParser.MainCallerContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprParser#mainCaller}.
+	 * @param ctx the parse tree
+	 */
+	void exitMainCaller(ExprParser.MainCallerContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ExprParser#methodCaller}.
 	 * @param ctx the parse tree
@@ -98,15 +108,25 @@ public interface ExprListener extends ParseTreeListener {
 	 */
 	void exitReturner(ExprParser.ReturnerContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ExprParser#localvariableCaller}.
+	 * Enter a parse tree produced by {@link ExprParser#localvariableInit}.
 	 * @param ctx the parse tree
 	 */
-	void enterLocalvariableCaller(ExprParser.LocalvariableCallerContext ctx);
+	void enterLocalvariableInit(ExprParser.LocalvariableInitContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ExprParser#localvariableCaller}.
+	 * Exit a parse tree produced by {@link ExprParser#localvariableInit}.
 	 * @param ctx the parse tree
 	 */
-	void exitLocalvariableCaller(ExprParser.LocalvariableCallerContext ctx);
+	void exitLocalvariableInit(ExprParser.LocalvariableInitContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprParser#variableVis}.
+	 * @param ctx the parse tree
+	 */
+	void enterVariableVis(ExprParser.VariableVisContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprParser#variableVis}.
+	 * @param ctx the parse tree
+	 */
+	void exitVariableVis(ExprParser.VariableVisContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ExprParser#printCall}.
 	 * @param ctx the parse tree

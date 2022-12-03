@@ -1,4 +1,4 @@
-// Generated from C:/Users/resul/Desktop/all/compilerbau antlr/src/antlr\Expr.g4 by ANTLR 4.10.1
+// Generated from java-escape by ANTLR 4.11.1
 package Parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -10,6 +10,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
+@SuppressWarnings("CheckReturnValue")
 public class ExprBaseListener implements ExprListener {
 	/**
 	 * {@inheritDoc}
@@ -23,6 +24,18 @@ public class ExprBaseListener implements ExprListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCompilationUnit(ExprParser.CompilationUnitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterMainCaller(ExprParser.MainCallerContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitMainCaller(ExprParser.MainCallerContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -124,13 +137,25 @@ public class ExprBaseListener implements ExprListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLocalvariableCaller(ExprParser.LocalvariableCallerContext ctx) { }
+	@Override public void enterLocalvariableInit(ExprParser.LocalvariableInitContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLocalvariableCaller(ExprParser.LocalvariableCallerContext ctx) { }
+	@Override public void exitLocalvariableInit(ExprParser.LocalvariableInitContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterVariableVis(ExprParser.VariableVisContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitVariableVis(ExprParser.VariableVisContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
