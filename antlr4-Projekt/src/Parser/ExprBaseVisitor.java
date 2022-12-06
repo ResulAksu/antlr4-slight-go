@@ -1,4 +1,4 @@
-// Generated from java-escape by ANTLR 4.11.1
+// Generated from C:/Users/resul/Desktop/all/antlr4-Projekt/antlr4-slight-go/antlr4-Projekt/src/antlr\Expr.g4 by ANTLR 4.10.1
 package Parser;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -10,7 +10,6 @@ import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
-@SuppressWarnings("CheckReturnValue")
 public class ExprBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements ExprVisitor<T> {
 	/**
 	 * {@inheritDoc}
@@ -18,7 +17,7 @@ public class ExprBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements E
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
-	@Override public T visitCompilationUnit(ExprParser.CompilationUnitContext ctx) { return visitChildren(ctx); }
+	@Override public T visitProg(ExprParser.ProgContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

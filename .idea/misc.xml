@@ -6,7 +6,7 @@
         <PerGrammarGenerationSettings>
           <option name="fileName" value="$PROJECT_DIR$/antlr4-Projekt/src/antlr/Expr.g4" />
           <option name="autoGen" value="true" />
-          <option name="outputDir" value="C:\Users\resul\Desktop\antlr4-slight-go\antlr4-Projekt\src" />
+          <option name="outputDir" value="C:\Users\resul\Desktop\all\antlr4-Projekt\antlr4-slight-go\antlr4-Projekt\src" />
           <option name="libDir" value="" />
           <option name="encoding" value="" />
           <option name="pkg" value="Parser" />

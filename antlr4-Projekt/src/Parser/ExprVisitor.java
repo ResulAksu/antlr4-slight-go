@@ -1,4 +1,4 @@
-// Generated from java-escape by ANTLR 4.11.1
+// Generated from C:/Users/resul/Desktop/all/antlr4-Projekt/antlr4-slight-go/antlr4-Projekt/src/antlr\Expr.g4 by ANTLR 4.10.1
 package Parser;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -11,11 +11,11 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  */
 public interface ExprVisitor<T> extends ParseTreeVisitor<T> {
 	/**
-	 * Visit a parse tree produced by {@link ExprParser#compilationUnit}.
+	 * Visit a parse tree produced by {@link ExprParser#prog}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitCompilationUnit(ExprParser.CompilationUnitContext ctx);
+	T visitProg(ExprParser.ProgContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ExprParser#mainCaller}.
 	 * @param ctx the parse tree

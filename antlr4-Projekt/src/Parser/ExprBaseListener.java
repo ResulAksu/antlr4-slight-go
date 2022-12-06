@@ -1,4 +1,4 @@
-// Generated from java-escape by ANTLR 4.11.1
+// Generated from C:/Users/resul/Desktop/all/antlr4-Projekt/antlr4-slight-go/antlr4-Projekt/src/antlr\Expr.g4 by ANTLR 4.10.1
 package Parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -10,20 +10,19 @@ import org.antlr.v4.runtime.tree.TerminalNode;
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-@SuppressWarnings("CheckReturnValue")
 public class ExprBaseListener implements ExprListener {
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCompilationUnit(ExprParser.CompilationUnitContext ctx) { }
+	@Override public void enterProg(ExprParser.ProgContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitCompilationUnit(ExprParser.CompilationUnitContext ctx) { }
+	@Override public void exitProg(ExprParser.ProgContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -3,16 +3,28 @@ package exp;
 
 import Parser.ExprBaseVisitor;
 import Parser.ExprParser;
+import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.beans.Expression;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class AntlrToExpr extends ExprBaseVisitor<Expression> {
 
-    private List<String> vars = new ArrayList<>();  //stores the variables declared
-    private List<String> semanticErrors = new ArrayList<>(); // 1.duplicate or 2.reference undeclared
+    private Map<String,String> myMethodsAndReturns = new HashMap<>();
+
+    @Override
+    public Expression visitProg(ExprParser.ProgContext ctx) {
+        if (ctx.children.size() >3) {
+            for (int i = 0; i < ctx.children.size()-3 ; i++) {
+                myMethodsAndReturns.put(ctx.methodCaller().get(i).nameGiver().getText(),ctx.methodCaller().get(i).type().getText());
+            }
+        }
+        System.out.println(myMethodsAndReturns);
+        return super.visitProg(ctx);
+    }
 
     @Override
     public Expression visitMethodCaller(ExprParser.MethodCallerContext ctx) {
@@ -59,9 +71,167 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
         return super.visitMainCaller(ctx);
     }
 
+    RuleContext blockId = null;
+    Map<String,String> initVariables = new HashMap<>();
+
     @Override
     public Expression visitLocalvariableInit(ExprParser.LocalvariableInitContext ctx) {
+        String type = ctx.type().getText();
+        String varName = ctx.nameGiver().get(0).getText();
+        List<ParseTree> children = ctx.children;
+
+        if(blockId == null || blockId == ctx.parent.parent) {
+            blockId = ctx.parent.parent;
+            checkVar(type, varName, children);
+
+            }else {
+                // new block reset map
+                initVariables.clear();
+                blockId = ctx.parent.parent;
+                checkVar(type, varName, children);
+            }
+
+
         return super.visitLocalvariableInit(ctx);
+    }
+
+    private void checkVar(String type, String varName, List<ParseTree> children) {
+        if(!initVariables.containsKey(varName)) {
+            switch (type) {
+                case "int":
+                    boolean is = true;
+                    for (int i = 4; i < children.size(); i++) {
+                        if (i % 2 == 0) {
+                            if (!isIntegerWhileInitWihtoutArithmetics(children.get(i).getText())) {
+                                if (initVariables.containsKey(children.get(i).getText())) {
+                                    if (!initVariables.get(children.get(i).getText()).equals("int")) {
+                                        is = false;
+                                    }
+                                } else if(myMethodsAndReturns.containsKey(methodCallShortener(children.get(i).getText()))){
+                                    if(!myMethodsAndReturns.get(methodCallShortener(children.get(i).getText())).equals("int")){
+                                        is = false;
+                                    }
+
+                                } else {
+                                    is = false;
+                                }
+                            }
+                        }
+                    }
+                    if (!is) {
+                        System.out.println("fehler");
+                    } else {
+                        initVariables.put(varName, type);
+                    }
+                    break;
+
+                case "float64":
+                    is = true;
+                    for (int i = 4; i < children.size(); i++) {
+                        if (i % 2 == 0) {
+                            if (!isFloatWhileInitWihtoutArithmetics(children.get(i).getText()) && !isIntegerWhileInitWihtoutArithmetics(children.get(i).getText())) {
+                                if (initVariables.containsKey(children.get(i).getText())) {
+                                    if (!initVariables.get(children.get(i).getText()).equals("float64")) {
+                                        is = false;
+                                    }
+                                }else if(myMethodsAndReturns.containsKey(methodCallShortener(children.get(i).getText()))) {
+                                    if (!myMethodsAndReturns.get(methodCallShortener(children.get(i).getText())).equals("int") && !myMethodsAndReturns.get(methodCallShortener(children.get(i).getText())).equals("float64")) {
+                                        is = false;
+                                    }
+                                }
+                                else {
+                                    is = false;
+                                }
+                            }
+                        }
+                    }
+                    if (!is) {
+                        System.out.println("fehler");
+                    } else {
+                        initVariables.put(varName, type);
+                    }
+                    break;
+                case "bool":
+                    is = true;
+                    // -> on Pause
+                    List<Integer> booleans = new ArrayList<>();
+                    //booleans 0 , logicals 1, not 2 -> 0 darf nicht nach 0,1 darf nicht nach 1, 2 darf nicht vor 1 und nicht am Ende
+                    for (int i = 4; i < children.size(); i++) {
+                        if(isBoolean(children.get(i).getText())){
+                            booleans.add(0);
+                        }
+                        if(logicals.contains(children.get(i).getText())){
+                            if(children.get(i).getText().equals("!")){
+                                booleans.add(2);
+                            }else{
+                                booleans.add(1);
+                            }
+                        }
+                        if(initVariables.containsKey(children.get(i).getText())){
+                            if (initVariables.get(children.get(i).getText()).equals("bool")){
+                                booleans.add(0);
+                            }
+                        }else{
+                            is = false;
+                        }
+                    }
+                    if(is){
+
+                    }
+
+                //case "string":
+            }
+        }else{
+            //Fehler
+            System.out.println("schon initialisiert");
+        }
+    }
+
+    List<String> logicals = List.of("!", "||", "&&");
+
+    public static boolean isBoolean(String strB){
+        if (strB == null) {
+            return false;
+        }
+        return strB.equals("true") || strB.equals("false");
+    }
+
+    public static boolean isIntegerWhileInitWihtoutArithmetics(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            int i = Integer.parseInt(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean isFloatWhileInitWihtoutArithmetics(String strNum) {
+        if (strNum == null) {
+            return false;
+        }
+        try {
+            float i = Float.parseFloat(strNum);
+        } catch (NumberFormatException nfe) {
+            return false;
+        }
+        return true;
+    }
+
+    public static String methodCallShortener(String s){
+        int l = s.toCharArray().length;
+        char[] ca = new char[l];
+        ca = s.toCharArray();
+        StringBuilder st = new StringBuilder();
+        for (char c : ca){
+            if(c == '('){
+                break;
+            }
+            st.append(c);
+        }
+        return st.toString();
     }
 
     @Override
@@ -96,27 +266,11 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
 
     @Override
     public Expression visitIntliteral(ExprParser.IntliteralContext ctx) {
-        String literal = ctx.getChild(0).getText();
-        Token t = ctx.DIGITINCL().get(0).getSymbol();
-        int line = t.getLine();
-        try {
-           Integer.parseInt(literal);
-        } catch (NumberFormatException e){
-            semanticErrors.add("Error: variable wrong type at Line: "+ line);
-        }
         return super.visitIntliteral(ctx);
     }
 
     @Override
     public Expression visitFloatliteral(ExprParser.FloatliteralContext ctx) {
-        String literal = ctx.getChild(0).getText();
-        Token t = ctx.DIGITINCL().get(0).getSymbol();
-        int line = t.getLine();
-        try {
-            Float.parseFloat(literal);
-        } catch (NumberFormatException e){
-            semanticErrors.add("Error: variable wrong type at Line: "+ line);
-        }
 
         return super.visitFloatliteral(ctx);
     }
@@ -156,4 +310,6 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
     public Expression visitLogicals(ExprParser.LogicalsContext ctx) {
         return super.visitLogicals(ctx);
     }
+
+
 }

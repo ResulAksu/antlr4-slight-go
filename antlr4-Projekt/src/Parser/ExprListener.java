@@ -1,4 +1,4 @@
-// Generated from java-escape by ANTLR 4.11.1
+// Generated from C:/Users/resul/Desktop/all/antlr4-Projekt/antlr4-slight-go/antlr4-Projekt/src/antlr\Expr.g4 by ANTLR 4.10.1
 package Parser;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -8,15 +8,15 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  */
 public interface ExprListener extends ParseTreeListener {
 	/**
-	 * Enter a parse tree produced by {@link ExprParser#compilationUnit}.
+	 * Enter a parse tree produced by {@link ExprParser#prog}.
 	 * @param ctx the parse tree
 	 */
-	void enterCompilationUnit(ExprParser.CompilationUnitContext ctx);
+	void enterProg(ExprParser.ProgContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link ExprParser#compilationUnit}.
+	 * Exit a parse tree produced by {@link ExprParser#prog}.
 	 * @param ctx the parse tree
 	 */
-	void exitCompilationUnit(ExprParser.CompilationUnitContext ctx);
+	void exitProg(ExprParser.ProgContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ExprParser#mainCaller}.
 	 * @param ctx the parse tree

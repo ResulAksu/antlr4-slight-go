@@ -1,0 +1,15 @@
+package main
+
+import "fmt"
+
+func main(){
+var i int = myAdd(5) + 1 +2.9
+}
+
+func myAdd(i int) float64{
+var i int = 3
+return i
+}
+
+
+
