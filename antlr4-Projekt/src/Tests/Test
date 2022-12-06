@@ -3,13 +3,15 @@ package main
 import "fmt"
 
 func main(){
-var i int = myAdd(5) + 1 +2.9
+var i bool = true
+var x float64 = myAdd(2,3,4*2+3)
+
+
 }
 
-func myAdd(i int) float64{
-var i int = 3
+func myAdd(i int, v float64, y int) float64{
+i = 3.0 //to do
 return i
 }
-
 
 

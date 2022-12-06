@@ -50,7 +50,7 @@ printCall:
     FMT DOT PRINT_LN LEFTPAR (methodCall | stringliteral | nameGiver)  RIGHTPAR;
 
 methodCall:
-    nameGiver LEFTPAR (nameGiver | typeProduction) (arithmetics | nameGiver | typeProduction)* (',' (nameGiver | typeProduction))* RIGHTPAR
+    nameGiver LEFTPAR (typeProduction | methodCall| nameGiver) (arithmetics typeProduction | arithmetics methodCall| arithmetics nameGiver)* (KOMMA (typeProduction | nameGiver) (arithmetics typeProduction| arithmetics nameGiver)*)* RIGHTPAR
     ;
 
 type
@@ -119,7 +119,7 @@ RIGHTPAR: ')';
 LEFTBRACE: '{';
 RIGHTBRACE: '}';
 ASSERT: '=';
-
+KOMMA: ',';
 //boolean
 MODULO:'%';
 EQUALS:'==';
