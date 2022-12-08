@@ -3,11 +3,6 @@ Compilerbau Projekt für eine schwache Version von GO
 
 ##Noch Zum Typechecken
 
-- LocalVariables
-    -fehlen nur  String
-    -richtige Initialisierung achten
-    var int i;
-    i = 3; machen
+-i= a+b usw. typisierung
 - Return
 - Fehlermeldungen arbeiten
-- Methodenmember keine Gleichen
