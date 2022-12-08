@@ -4,12 +4,9 @@ Compilerbau Projekt für eine schwache Version von GO
 ##Noch Zum Typechecken
 
 - LocalVariables
-    -fehlen nur noch Boolean & String
+    -fehlen nur  String
     -richtige Initialisierung achten
-- For oder If
-    -Boolsche Expression Grammar needed
-- Literals
-    - Syntaxfehler bei Literals
-- Methodenaufrufe
-    - Benutzt Methode richtigen return
+    var int i;
+    i = 3; machen
+- Return
 - Fehlermeldungen arbeiten
