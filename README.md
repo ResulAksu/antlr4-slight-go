@@ -10,3 +10,4 @@ Compilerbau Projekt für eine schwache Version von GO
     i = 3; machen
 - Return
 - Fehlermeldungen arbeiten
+- Methodenmember keine Gleichen
