@@ -55,11 +55,13 @@ variableVis
       ;
 
 printCall:
-    FMT DOT PRINT_LN LEFTPAR (methodCall | stringliteral | nameGiver)  RIGHTPAR;
+    FMT DOT methodCall;
+
 
 methodCall:
-    nameGiver LEFTPAR ((typeProduction | methodCall| nameGiver)| (arithmetics typeProduction | arithmetics methodCall| arithmetics nameGiver)* | boolCollector) (KOMMA ((typeProduction | nameGiver) (arithmetics typeProduction| arithmetics nameGiver)*| boolCollector))* RIGHTPAR
+    (nameGiver|PRINT_LN) LEFTPAR (((typeProduction | methodCall| nameGiver) (arithmetics typeProduction | arithmetics methodCall| arithmetics nameGiver)* | boolCollector) (KOMMA ((typeProduction | nameGiver) (arithmetics typeProduction| arithmetics nameGiver)*| boolCollector))*)* RIGHTPAR
     ;
+
 
 boolExpr:
     (LOGICAL_NOT)* ( methodCall|boolliteral|onlyName| boolStat );

@@ -1,12 +1,13 @@
 package main
-
 import "fmt"
+func main() {
+var x int = myAdd("a",3)
 
-func main(
-){
-var x bool = true
-var x bool = false
 
 }
 
-func name(i bool) int{}
+func myAdd(a string, b int) string{
+ var c int = 0
+ c= a+b
+ return c
+}

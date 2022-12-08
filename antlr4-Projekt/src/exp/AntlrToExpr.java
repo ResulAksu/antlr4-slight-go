@@ -16,6 +16,7 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
 
     @Override
     public Expression visitProg(ExprParser.ProgContext ctx) {
+        x.put("Println", new methods());
         if (ctx.children.size() > 3) {
             for (int i = 0; i < ctx.children.size() - 3; i++) {
                 myMethodsAndReturns.put(ctx.methodCaller().get(i).nameGiver().getText(), ctx.methodCaller().get(i).second_type().getText());
@@ -25,10 +26,12 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
         if (!methodDuplicate(ctx.methodCaller())) {
             for (int i = 0; i < ctx.methodCaller().size(); i++) {
                 methods m = new methods();
+                if(ctx.methodCaller().get(i).methodMember().size() >=1){
                 for (int j = 0; j < ctx.methodCaller().get(i).methodMember().get(0).second_type().size(); j++) {
                     m.getM().put(ctx.methodCaller().get(i).methodMember().get(0).nameGiver().get(j).getText(), ctx.methodCaller().get(i).methodMember().get(0).second_type().get(j).getText());
 
-                }
+                }}
+
                 x.put(ctx.methodCaller().get(i).nameGiver().getText(), m);
             }
         } else {
@@ -63,7 +66,12 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
         if (s.isEmpty() || s.equals(ctx.parent.getChild(1).getText())) {
             s = ctx.parent.getChild(1).getText();
             for (int i = 0; i < ctx.second_type().size(); i++) {
-                myMethodsAndVarMember.put(ctx.nameGiver().get(i).getText(), ctx.second_type().get(i).getText());
+                if(!myMethodsAndVarMember.containsKey(ctx.nameGiver().get(i).getText())) {
+                    myMethodsAndVarMember.put(ctx.nameGiver().get(i).getText(), ctx.second_type().get(i).getText());
+                }else{
+                    System.out.println("Methodenparameter Overloading");
+                    break;
+                }
 
             }
         } else {
@@ -195,7 +203,36 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
                     }
                     break;
 
-                //case "string":
+                case "string":
+                    is = true;
+                    for (; i < children.size(); i++) {
+                        if (i % 2 == 0) {
+                            if (!isString(children.get(i).getText())) {
+                                if (initVariables.containsKey(children.get(i).getText())) {
+                                    if (!initVariables.get(children.get(i).getText()).equals("string")) {
+                                        is = false;
+                                    }
+                                } else if (myMethodsAndReturns.containsKey(methodCallShortener(children.get(i).getText()))) {
+                                    if (!myMethodsAndReturns.get(methodCallShortener(children.get(i).getText())).equals("string")) {
+                                        is = false;
+                                    }
+                                } else if (myMethodsAndVarMember.containsKey(children.get(i).getText())) {
+                                    if (!myMethodsAndVarMember.get(children.get(i).getText()).equals("string")) {
+                                        is = false;
+                                    }
+                                } else {
+                                    is = false;
+                                }
+                            }
+                        }
+                    }
+                    if (!is) {
+                        System.out.println("fehler");
+                    } else {
+                        initVariables.put(varName, type);
+                    }
+                    break;
+
             }
         } else {
             //Fehler
@@ -203,7 +240,13 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
         }
     }
 
-
+    public static boolean isString(String str){
+        if(str == null){
+            return false;
+        }
+        char[] ca = str.toCharArray();
+        return  ca[0] == '"' && ca[ca.length-1] == '"';
+    }
     public static boolean isBoolean(String strB) {
         if (strB == null) {
             return false;
@@ -264,123 +307,159 @@ public class AntlrToExpr extends ExprBaseVisitor<Expression> {
                 counter++;
         }
         counter++;
+        if (!children.stream().map(ParseTree::getText).toList().contains(",")) counter =0;
+
         return counter == size;
     }
 
     @Override
     public Expression visitMethodCall(ExprParser.MethodCallContext ctx) {
         // ist leer weil der vorher geleert wird
-        if (!x.containsKey(ctx.nameGiver().get(0).getText())) {
-            System.out.println("Methode nicht vorhanden");
-        } else if (!isAllVar(ctx.children, x.get(ctx.nameGiver().get(0).getText()).getM().values().stream().toList().size())) {
-            System.out.println("Ungleiche Anzahl an Variablen");
-        } else {
+        if(ctx.PRINT_LN() == null) {
+            if (!x.containsKey(ctx.nameGiver().get(0).getText())) {
+                System.out.println("Methode nicht vorhanden");
+            } else if (!isAllVar(ctx.children, x.get(ctx.nameGiver().get(0).getText()).getM().values().stream().toList().size())) {
+                System.out.println("Ungleiche Anzahl an Variablen");
+            } else {
 
 
-            List<String> typs = x.get(ctx.nameGiver().get(0).getText()).getM().values().stream().toList();
-            int j = 2;
-            //check if more var to init than called
+                List<String> typs = x.get(ctx.nameGiver().get(0).getText()).getM().values().stream().toList();
+                int j = 2;
+                //check if more var to init than called
 
-            for (int i = 0; i < typs.size(); i++) {
-                String typ = typs.get(i);
-                for (; j < ctx.children.size() - 1; j++) {
-                    String chc = ctx.children.get(j).getText();
-                    if (chc.equals(",")) {
-                        j = j + 1;
-                        break;
-                    }
-                    if (j % 2 == 0) {
-                        switch (typ) {
+                for (int i = 0; i < typs.size(); i++) {
+                    String typ = typs.get(i);
+                    for (; j < ctx.children.size() - 1; j++) {
+                        String chc = ctx.children.get(j).getText();
+                        if (chc.equals(",")) {
+                            j = j + 1;
+                            break;
+                        }
+                        if (j % 2 == 0) {
+                            switch (typ) {
 
-                            case "int":
-                                boolean is = true;
-                                if (!isInteger(chc)) {
-                                    if (initVariables.containsKey(chc)) {
-                                        if (!initVariables.get(chc).equals("int")) {
+                                case "int":
+                                    boolean is = true;
+                                    if (!isInteger(chc)) {
+                                        if (initVariables.containsKey(chc)) {
+                                            if (!initVariables.get(chc).equals("int")) {
+                                                is = false;
+                                            }
+                                        } else if (myMethodsAndReturns.containsKey(methodCallShortener(chc))) {
+                                            if (!myMethodsAndReturns.get(methodCallShortener(chc)).equals("int")) {
+                                                is = false;
+                                            }
+
+                                        } else if (myMethodsAndVarMember.containsKey(chc)) {
+                                            if (!myMethodsAndVarMember.get(chc).equals("int")) {
+                                                is = false;
+                                            }
+
+                                        } else {
                                             is = false;
                                         }
-                                    } else if (myMethodsAndReturns.containsKey(methodCallShortener(chc))) {
-                                        if (!myMethodsAndReturns.get(methodCallShortener(chc)).equals("int")) {
-                                            is = false;
-                                        }
 
-                                    } else if (myMethodsAndVarMember.containsKey(chc)) {
-                                        if (!myMethodsAndVarMember.get(chc).equals("int")) {
-                                            is = false;
-                                        }
-
-                                    } else {
-                                        is = false;
                                     }
-
-                                }
-                                if (!is) {
-                                    System.out.println("fehler");
-                                } else {
-                                    //richtig
-
-                                }
-
-                                break;
-                            case "float64":
-                                is = true;
-                                if (!isFloat(chc) && !isInteger(chc)) {
-                                    if (initVariables.containsKey(chc)) {
-                                        if (!initVariables.get(chc).equals("float64")) {
-                                            is = false;
-                                        }
-                                    } else if (myMethodsAndReturns.containsKey(methodCallShortener(chc))) {
-                                        if (!myMethodsAndReturns.get(methodCallShortener(chc)).equals("int") && !myMethodsAndReturns.get(methodCallShortener(chc)).equals("float64")) {
-                                            is = false;
-                                        }
-                                    } else if (myMethodsAndVarMember.containsKey(chc)) {
-                                        if (!myMethodsAndVarMember.get(chc).equals("int") && !myMethodsAndVarMember.get(chc).equals("float64")) {
-                                            is = false;
-                                        }
-                                    } else {
-                                        is = false;
-                                    }
-
-
                                     if (!is) {
                                         System.out.println("fehler");
                                     } else {
                                         //richtig
+
                                     }
-                                }
-                            case "bool":
-                                is = true;
-                                if (!isBoolean(chc)) {
+
+                                    break;
+                                case "float64":
+                                    is = true;
+                                    if (!isFloat(chc) && !isInteger(chc)) {
+                                        if (initVariables.containsKey(chc)) {
+                                            if (!initVariables.get(chc).equals("float64")) {
+                                                is = false;
+                                            }
+                                        } else if (myMethodsAndReturns.containsKey(methodCallShortener(chc))) {
+                                            if (!myMethodsAndReturns.get(methodCallShortener(chc)).equals("int") && !myMethodsAndReturns.get(methodCallShortener(chc)).equals("float64")) {
+                                                is = false;
+                                            }
+                                        } else if (myMethodsAndVarMember.containsKey(chc)) {
+                                            if (!myMethodsAndVarMember.get(chc).equals("int") && !myMethodsAndVarMember.get(chc).equals("float64")) {
+                                                is = false;
+                                            }
+                                        } else {
+                                            is = false;
+                                        }
+
+
+                                        if (!is) {
+                                            System.out.println("fehler");
+                                        } else {
+                                            //richtig
+                                        }
+                                    }
+                                case "bool":
+                                    is = true;
+                                    if (!isBoolean(chc)) {
+                                        if (initVariables.containsKey(chc)) {
+                                            if (!initVariables.get(chc).equals("bool")) {
+                                                is = false;
+                                            }
+                                        } else if (myMethodsAndReturns.containsKey(methodCallShortener(chc))) {
+                                            if (!myMethodsAndReturns.get(methodCallShortener(chc)).equals("bool")) {
+                                                is = false;
+                                            }
+                                        } else if (myMethodsAndVarMember.containsKey(chc)) {
+                                            if (!myMethodsAndVarMember.get(chc).equals("bool")) {
+                                                is = false;
+                                            }
+                                        } else {
+                                            is = false;
+                                        }
+
+
+                                        if (!is) {
+                                            System.out.println("fehhler");
+                                        } else {
+                                            //richtig
+                                        }
+                                    }
+                                case "string":
+                                    is = true;
+
+                                    if (!isString(chc)) {
                                     if (initVariables.containsKey(chc)) {
-                                        if (!initVariables.get(chc).equals("bool")) {
+                                        if (!initVariables.get(chc).equals("string")) {
                                             is = false;
                                         }
                                     } else if (myMethodsAndReturns.containsKey(methodCallShortener(chc))) {
-                                        if (!myMethodsAndReturns.get(methodCallShortener(chc)).equals("bool")) {
+                                        if (!myMethodsAndReturns.get(methodCallShortener(chc)).equals("string") ){
                                             is = false;
                                         }
                                     } else if (myMethodsAndVarMember.containsKey(chc)) {
-                                        if (!myMethodsAndVarMember.get(chc).equals("bool")) {
+                                        if (!myMethodsAndVarMember.get(chc).equals("string")) {
                                             is = false;
                                         }
                                     } else {
                                         is = false;
                                     }
-
-
-                                    if (!is) {
-                                        System.out.println("fehhler");
-                                    } else {
-                                        //richtig
-                                    }
                                 }
+                        if (!is) {
+                            System.out.println("fehler");
+                        } else {
+                            //richtig
+                        }
+                        break;
+                            }
+
+
                         }
 
 
                     }
-
-
                 }
+            }
+        }else{
+            List<String> v =ctx.nameGiver().stream().map(RuleContext::getText).filter(a -> !isString(a) && !isArithmetic(a) && !isInteger(a) && !isBoolean(a) && !isFloat(a)).filter(a -> !initVariables.containsKey(a) && !myMethodsAndVarMember.containsKey(a) && !myMethodsAndReturns.containsKey(a)).toList();
+            if (!v.isEmpty()){
+
+                System.out.println("nicht init variable im sout");
             }
         }
 
