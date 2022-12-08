@@ -1,13 +1,9 @@
 package main
 import "fmt"
 func main() {
-var x int = myAdd("a",3)
-
-
 }
 
-func myAdd(a string, b int) string{
- var c int = 0
- c= a+b
- return c
+func myAdd(i int) int {
+var a int = i
+return a
 }

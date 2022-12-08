@@ -34,7 +34,7 @@ for_loop
 
 
 returner
-    : RETURN (methodCall| nameGiver | typeProduction | arithmetics)+;
+    : RETURN (methodCall|nameGiver | typeProduction |boolCollector| arithmetics)+;
 
 
 
@@ -130,6 +130,14 @@ LOGICAL_AND  | LOGICAL_OR  ;
 
 
 WS: [ \r\t\n]+ -> skip;
+NEWLINE : [\r\n]+ -> type(WS);
+COMMENT
+    : '/*' .*? '*/' -> skip
+;
+
+LINE_COMMENT
+    : '//' ~[\r\n]* -> skip
+;
 PACKAGE: 'package';
 MAIN: 'main';
 IMPORT: 'import';

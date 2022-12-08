@@ -3,19 +3,19 @@ package root;
 import Parser.ExprBaseListener;
 import Parser.ExprLexer;
 import Parser.ExprParser;
-import exp.AntlrToExpr;
-import org.antlr.runtime.ANTLRInputStream;
+import typechecker.Typechecker;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-public class ANTLR_Parser {
+public class Go_Parser {
 
     public static void main(String[] args)
         {
@@ -37,15 +37,16 @@ public class ANTLR_Parser {
                 // Begin parsing at rule prog
                 ParseTree tree = parser.prog();
 
-                AntlrToExpr e = new AntlrToExpr();
+                Typechecker e = new Typechecker();
                 e.visit(tree);
 
+                List<Exception> exceptions = e.getExceptionList();
+                if(!exceptions.isEmpty()){
+                    for (Exception exc: exceptions){
+                        exc.printStackTrace();
+                    }
+                }
 
-                // Create a generic parse tree walker that can trigger callbacks
-                ParseTreeWalker walker = new ParseTreeWalker();
-
-                // Walk the tree created during the parse, trigger callbacks
-                walker.walk(new ExprBaseListener(), tree);
 
             } catch (IOException e) {
                 // TODO Auto-generated catch block

@@ -1,10 +1,9 @@
-package exp;
+package typechecker;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class methods {
+public class MethodsWithMember {
 
     private Map<String,String> m = new LinkedHashMap<>();
 
