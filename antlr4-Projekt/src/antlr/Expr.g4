@@ -9,11 +9,13 @@ mainCaller
     : FUNC MAIN LEFTPAR RIGHTPAR block;
 
 methodCaller
-    : FUNC nameGiver LEFTPAR methodMember* RIGHTPAR type block
+    : FUNC nameGiver LEFTPAR methodMember* RIGHTPAR second_type block
+
     ;
 
 methodMember
-    : nameGiver type (',' nameGiver type)*
+    :
+     nameGiver second_type (',' nameGiver second_type)*
     ;
 
 block
@@ -25,45 +27,62 @@ blockStatements
 
 //Hier weiter machen
 if_and_or_else_expression
-    : IF_TOKEN bool_statement (logicals bool_statement)* block (ELSE_TOKEN block)*;
+    : IF_TOKEN boolExpr (logicals boolExpr)* block (ELSE_TOKEN block)*;
 
 for_loop
-    :  FOR_TOKEN bool_statement block;
+    :  FOR_TOKEN boolExpr (logicals boolExpr)* block;
 
-bool_statement
-    : (nameGiver | typeProduction) booleans (nameGiver | typeProduction);
 
 returner
     : RETURN (methodCall| nameGiver | typeProduction | arithmetics)+;
 
+
+
 localvariableInit
-    : VAR nameGiver type ASSERT (methodCall|typeProduction|nameGiver|) (arithmetics typeProduction| arithmetics nameGiver| arithmetics methodCall)*
-    | VAR nameGiver type ASSERT (LOGICAL_NOT)* (boolliteral|nameGiver) (logicals (LOGICAL_NOT)*boolliteral | logicals(LOGICAL_NOT)* nameGiver)*
+      :VAR nameGiver BOOLEAN ASSERT boolCollector
+      |VAR nameGiver type ASSERT (methodCall|typeProduction|nameGiver|) (arithmetics typeProduction| arithmetics nameGiver| arithmetics methodCall)*
+
+
     ;
 
+    boolCollector
+        :  boolExpr (logicals boolExpr)* ;
+
 variableVis
-    :    nameGiver ASSERT methodCall (arithmetics typeProduction | arithmetics nameGiver | arithmetics methodCall)*
-       | nameGiver ASSERT (typeProduction | nameGiver) (arithmetics typeProduction | arithmetics nameGiver | arithmetics methodCall)*
+        : nameGiver ASSERT boolCollector |
+       nameGiver ASSERT methodCall (arithmetics typeProduction | arithmetics nameGiver | arithmetics methodCall)*
+       | nameGiver ASSERT (typeProduction | nameGiver) (arithmetics typeProduction |arithmetics nameGiver | arithmetics methodCall)*
       ;
 
 printCall:
     FMT DOT PRINT_LN LEFTPAR (methodCall | stringliteral | nameGiver)  RIGHTPAR;
 
 methodCall:
-    nameGiver LEFTPAR (typeProduction | methodCall| nameGiver) (arithmetics typeProduction | arithmetics methodCall| arithmetics nameGiver)* (KOMMA (typeProduction | nameGiver) (arithmetics typeProduction| arithmetics nameGiver)*)* RIGHTPAR
+    nameGiver LEFTPAR ((typeProduction | methodCall| nameGiver)| (arithmetics typeProduction | arithmetics methodCall| arithmetics nameGiver)* | boolCollector) (KOMMA ((typeProduction | nameGiver) (arithmetics typeProduction| arithmetics nameGiver)*| boolCollector))* RIGHTPAR
     ;
 
+boolExpr:
+    (LOGICAL_NOT)* ( methodCall|boolliteral|onlyName| boolStat );
+
+boolStat:
+   LOGICAL_NOT* (methodCall|boolliteral|nameGiver|typeProduction) booleans LOGICAL_NOT* (methodCall|boolliteral|nameGiver|typeProduction);
 type
     : INT
     | FLOAT64
     | STRING
-    | BOOLEAN
     ;
+
+second_type
+    : INT
+        | FLOAT64
+        | STRING
+        | BOOLEAN
+        ;
+
 
 typeProduction
     : intliteral
     | floatliteral
-    | boolliteral
     | stringliteral;
 
 stringliteral
@@ -92,7 +111,8 @@ importProduction
 nameGiver
     : (LETTER | DIGITINCL)+;
 
-
+onlyName
+    : LETTER+;
 
 arithmetics
     : ADD | SUB | MUL | DIV |MODULO
@@ -102,7 +122,7 @@ booleans:
 MODULO | EQUALS | SMALLER | SMALLER_OR_EQUAL| GREATER | GREATER_OR_EQUAL | NOT_EQUAL ;
 
 logicals:
-LOGICAL_AND  | LOGICAL_OR  | LOGICAL_NOT ;
+LOGICAL_AND  | LOGICAL_OR  ;
 
 
 

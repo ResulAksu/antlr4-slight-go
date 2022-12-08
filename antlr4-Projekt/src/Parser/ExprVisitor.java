@@ -59,12 +59,6 @@ public interface ExprVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFor_loop(ExprParser.For_loopContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link ExprParser#bool_statement}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitBool_statement(ExprParser.Bool_statementContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link ExprParser#returner}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -76,6 +70,12 @@ public interface ExprVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitLocalvariableInit(ExprParser.LocalvariableInitContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExprParser#boolCollector}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoolCollector(ExprParser.BoolCollectorContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ExprParser#variableVis}.
 	 * @param ctx the parse tree
@@ -95,11 +95,29 @@ public interface ExprVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitMethodCall(ExprParser.MethodCallContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link ExprParser#boolExpr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoolExpr(ExprParser.BoolExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExprParser#boolStat}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoolStat(ExprParser.BoolStatContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link ExprParser#type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitType(ExprParser.TypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExprParser#second_type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitSecond_type(ExprParser.Second_typeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ExprParser#typeProduction}.
 	 * @param ctx the parse tree
@@ -148,6 +166,12 @@ public interface ExprVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitNameGiver(ExprParser.NameGiverContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link ExprParser#onlyName}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOnlyName(ExprParser.OnlyNameContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link ExprParser#arithmetics}.
 	 * @param ctx the parse tree

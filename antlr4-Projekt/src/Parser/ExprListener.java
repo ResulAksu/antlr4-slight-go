@@ -88,16 +88,6 @@ public interface ExprListener extends ParseTreeListener {
 	 */
 	void exitFor_loop(ExprParser.For_loopContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link ExprParser#bool_statement}.
-	 * @param ctx the parse tree
-	 */
-	void enterBool_statement(ExprParser.Bool_statementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link ExprParser#bool_statement}.
-	 * @param ctx the parse tree
-	 */
-	void exitBool_statement(ExprParser.Bool_statementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link ExprParser#returner}.
 	 * @param ctx the parse tree
 	 */
@@ -117,6 +107,16 @@ public interface ExprListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLocalvariableInit(ExprParser.LocalvariableInitContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprParser#boolCollector}.
+	 * @param ctx the parse tree
+	 */
+	void enterBoolCollector(ExprParser.BoolCollectorContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprParser#boolCollector}.
+	 * @param ctx the parse tree
+	 */
+	void exitBoolCollector(ExprParser.BoolCollectorContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ExprParser#variableVis}.
 	 * @param ctx the parse tree
@@ -148,6 +148,26 @@ public interface ExprListener extends ParseTreeListener {
 	 */
 	void exitMethodCall(ExprParser.MethodCallContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link ExprParser#boolExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterBoolExpr(ExprParser.BoolExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprParser#boolExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitBoolExpr(ExprParser.BoolExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprParser#boolStat}.
+	 * @param ctx the parse tree
+	 */
+	void enterBoolStat(ExprParser.BoolStatContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprParser#boolStat}.
+	 * @param ctx the parse tree
+	 */
+	void exitBoolStat(ExprParser.BoolStatContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link ExprParser#type}.
 	 * @param ctx the parse tree
 	 */
@@ -157,6 +177,16 @@ public interface ExprListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitType(ExprParser.TypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprParser#second_type}.
+	 * @param ctx the parse tree
+	 */
+	void enterSecond_type(ExprParser.Second_typeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprParser#second_type}.
+	 * @param ctx the parse tree
+	 */
+	void exitSecond_type(ExprParser.Second_typeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ExprParser#typeProduction}.
 	 * @param ctx the parse tree
@@ -237,6 +267,16 @@ public interface ExprListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitNameGiver(ExprParser.NameGiverContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link ExprParser#onlyName}.
+	 * @param ctx the parse tree
+	 */
+	void enterOnlyName(ExprParser.OnlyNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link ExprParser#onlyName}.
+	 * @param ctx the parse tree
+	 */
+	void exitOnlyName(ExprParser.OnlyNameContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link ExprParser#arithmetics}.
 	 * @param ctx the parse tree

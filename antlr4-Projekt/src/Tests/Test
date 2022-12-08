@@ -2,16 +2,10 @@ package main
 
 import "fmt"
 
-func main(){
-var i bool = true
-var x float64 = myAdd(2,3,4*2+3)
-
-
+func main(
+){
+var i int = 2
+var x int = 3 +i
 }
 
-func myAdd(i int, v float64, y int) float64{
-i = 3.0 //to do
-return i
-}
-
-
+func name(i bool) int{}
