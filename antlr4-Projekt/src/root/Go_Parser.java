@@ -17,12 +17,12 @@ import java.util.Map;
 
 public class Go_Parser {
 
-    public static void main(String[] args)
-        {
-
+    public static void main(String[] args) {
+        String s = args[0];
+        if (s.equals("-compile")) {
             try {
                 // Open the input file stream
-                String fileName = "C:\\Users\\resul\\Desktop\\all\\antlr4-Projekt\\antlr4-slight-go\\antlr4-Projekt\\src\\Tests\\Test";
+                String fileName = args[1];
                 CharStream codePointCharStream = CharStreams.fromFileName(fileName);
 
                 // Create a lexer that feeds off of input CharStream
@@ -41,8 +41,8 @@ public class Go_Parser {
                 e.visit(tree);
 
                 List<Exception> exceptions = e.getExceptionList();
-                if(!exceptions.isEmpty()){
-                    for (Exception exc: exceptions){
+                if (!exceptions.isEmpty()) {
+                    for (Exception exc : exceptions) {
                         exc.printStackTrace();
                     }
                 }
@@ -53,5 +53,6 @@ public class Go_Parser {
                 e.printStackTrace();
             }
         }
+    }
     }
 

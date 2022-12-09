@@ -3,7 +3,6 @@ package typechecker;
 
 import Parser.ExprBaseVisitor;
 import Parser.ExprParser;
-import jdk.jshell.spi.ExecutionControlProvider;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.ParseTree;
 
@@ -50,11 +49,11 @@ public class Typechecker extends ExprBaseVisitor<Expression> {
 
     private boolean methodDuplicate(List<ExprParser.MethodCallerContext> methodCaller) {
         String s = "";
-        for (int i = 0; i < methodCaller.size(); i++) {
-            if (s.equals(methodCaller.get(i).nameGiver().getText())) {
+        for (ExprParser.MethodCallerContext methodCallerContext : methodCaller) {
+            if (s.equals(methodCallerContext.nameGiver().getText())) {
                 return true;
             } else {
-                s = methodCaller.get(i).nameGiver().getText();
+                s = methodCallerContext.nameGiver().getText();
             }
         }
         return false;
