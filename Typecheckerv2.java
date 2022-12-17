@@ -1,7 +1,7 @@
 import java.beans.Expression;
 import java.util.*;
 
-public class Typechecker2 extends ExprBaseVisitor<Expression> {
+public class Typecheckerv2 extends ExprBaseVisitor<Expression> {
 
     private final Map<String, MethodsWithMember> methodsAndMembers = new HashMap<>();
     private final Map<String,String> methodsAndReturns = new HashMap<>();
