@@ -2,6 +2,10 @@
 Compilerbau Projekt für eine schwache Version von GO
 
 Typechecking done. 
+Working on CodeGenerator:
+<p>Java.class to Jasmin Bytecode jar inkludiert ausführen mit:</p>
+<p>javac file.java</p>
+<p>java -jar jasmin.jar file.class</p>
 
 <hr/>
 <p>how to compile:</p>
