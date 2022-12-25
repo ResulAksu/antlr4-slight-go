@@ -1,0 +1,8 @@
+package main
+
+import "fmt"
+
+func myAdd(i int, j int) int{
+ var y int = 3
+ return i+y+j
+}
