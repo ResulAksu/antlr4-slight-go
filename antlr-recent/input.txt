@@ -1,0 +1,15 @@
+package main
+
+import "fmt"
+
+func main(){
+    var i int = 3
+    if i < 5 {
+      i = 4
+    }else{
+      i = 1
+    }
+
+    fmt.Println(i)
+}
+
