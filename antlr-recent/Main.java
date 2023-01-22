@@ -67,7 +67,7 @@ public class Main {
         }
 
     private static void writeInFile(String code) throws IOException {
-        File path = new File("Go.j");
+        File path = new File("antlr-recent/Go.j");
         FileWriter fw = new FileWriter(path);
         fw.write(code);
         fw.flush();

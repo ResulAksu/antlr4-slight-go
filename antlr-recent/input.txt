@@ -3,13 +3,10 @@ package main
 import "fmt"
 
 func main(){
-    var i int = 3
-    if i < 5 {
-      i = 4
-    }else{
-      i = 1
-    }
+    fmt.Println(boolA(3.0))
+}
 
-    fmt.Println(i)
+func boolA(i float64) float64{
+    return i*3.0+4.0
 }
 

@@ -10,24 +10,25 @@
 
 .method public static main([Ljava/lang/String;)V 
  .limit stack 100
- .limit locals 2
+ .limit locals 1
  .line 5
-   ldc 3
-   istore_1
-   iload_1
-   ldc 5
-   isub
-   ifge Label10
-   ldc 4
-   istore_1
-   goto LabelELSE
-Label10:
-   ldc 1
-   istore_1
-LabelELSE:
    getstatic java/lang/System/out Ljava/io/PrintStream;
-   iload_1
-   invokevirtual java/io/PrintStream/println(I)V
+   ldc2_w 3.0
+   invokestatic Go/boolA(D)D
+   invokevirtual java/io/PrintStream/println()V
    return
+.end method 
+
+.method public static boolA(D)D
+ .limit stack 100
+ .limit locals 3
+ .line 9
+ .line 10
+   dload_0
+   ldc2_w 3.0
+   dmul 
+   ldc2_w 4.0
+   dadd 
+   dreturn
 .end method 
 

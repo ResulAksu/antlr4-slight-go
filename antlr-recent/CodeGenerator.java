@@ -1,13 +1,4 @@
-
-import org.antlr.v4.runtime.tree.ErrorNode;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.RuleNode;
-import org.antlr.v4.runtime.tree.TerminalNode;
-
 import java.beans.Expression;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.*;
 
 public class CodeGenerator extends ExprBaseVisitor<Expression> {
@@ -33,12 +24,28 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
     private int countOfMembers = 0;
     private int localCounter = 0;
     private String currentReturnType = "";
+
+    private int countOfMethods = 0;
+    private final Map<String,String> methodsAndReturns = new HashMap<>();
     @Override
     public Expression visitProg(Expr.ProgContext ctx) {
+        countOfMethods = ctx.methodCaller().size();
+        for (int j = 0; j < ctx.methodCaller().size(); j++) {
+            if(ctx.methodCaller().get(j).methodMember() != null){
+                visitMethodMember(ctx.methodCaller().get(j).methodMember(), true);
+            }
+            if(ctx.methodCaller().get(j).type() != null){
+                methodsAndReturns.put(ctx.methodCaller().get(j).nameGiver().getText(),examineTyp(ctx.methodCaller().get(j).type().getText()));
+            }
+
+        }
         return super.visitProg(ctx);
     }
 
-    private final Map<String,String> methodsAndReturns = new HashMap<>();
+
+
+    int i = 0;
+
     @Override
     public Expression visitMethodCaller(Expr.MethodCallerContext ctx) {
         if(ctx.type() != null) {
@@ -55,7 +62,7 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
             toMakeMethod = ".method public static main([Ljava/lang/String;)V \n" + " .limit stack 100\n"  + " .limit locals "+ (calcLocals(ctx.block().blockStatements())+1) + "\n" + " .line "+ ctx.FUNC().getSymbol().getLine() + "\n"+visitBlock(ctx.block(),true) +"   return\n"+ ".end method \n\n";
         }else{
             String type = examineTyp(ctx.type().getText());
-            toMakeMethod = ".method public static " +ctx.nameGiver().getText() + "(" + visiter(ctx) + ")" + type +"\n" + " .limit stack " + (countOfMembers+1) + "\n" + " .limit locals "+ (countOfMembers+calcLocals(ctx.block().blockStatements())) + "\n" + " .line "+ ctx.FUNC().getSymbol().getLine() + "\n"+visitBlock(ctx.block(),true)+".end method \n\n";
+            toMakeMethod = ".method public static " +ctx.nameGiver().getText() + "(" + visiter(ctx) + ")" + type +"\n" + " .limit stack 100\n" + " .limit locals "+ (countOfMembers+calcLocals(ctx.block().blockStatements())) + "\n" + " .line "+ ctx.FUNC().getSymbol().getLine() + "\n"+visitBlock(ctx.block(),true)+".end method \n\n";
         }
         countOfMembers = 0;
         code += toMakeMethod;
