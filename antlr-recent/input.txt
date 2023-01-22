@@ -1,0 +1,15 @@
+package main
+
+import "fmt"
+
+func main(){
+    fmt.Println(recursiveGCDL(366,60))
+}
+
+func recursiveGCDL(n int, m int) int{
+    if( m != 0){
+        return recursiveGCDL(m,n%m)
+    }else{
+        return n
+    }
+}
