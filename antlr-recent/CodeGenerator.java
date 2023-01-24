@@ -2,12 +2,15 @@ import java.beans.Expression;
 import java.util.*;
 
 public class CodeGenerator extends ExprBaseVisitor<Expression> {
-    private final Map<String, Integer> localLimits;
-    public CodeGenerator(Map<String,Integer> c){
-        this.localLimits = c;
+    private Map<String, Integer> localLimits = new HashMap<>();
+
+    private String className = new String();
+    public CodeGenerator(Map<String,Integer> c, String classesName){
+        localLimits = c;
+        className = classesName;
     }
     private int currentIfLabel = 0;
-
+    private final Map<String,String> variableForPrint = new HashMap<>();
     private String s = "";
     private final Map<String,String> notInit = new HashMap<>();
     private String currentInitType = "";
@@ -20,28 +23,19 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
 
     private final Map<String,String> variableTyp = new HashMap<>();
     private final Map<String,Integer> variablePlace = new HashMap<>();
-    private String code= """
-            .class Go
-            .super java/lang/Object
-            .method public <init>()V
-                .limit stack 1
-                .limit locals 1
-                aload_0
-                invokespecial java/lang/Object/<init>()V
-                return
-            .end method
-            
-            """;
-
+    private String code = "";
     public String getCode() {
         return code;
     }
+
     private int localCounter = 0;
     private String currentReturnType = "";
 
     private final Map<String,String> methodsAndReturns = new HashMap<>();
     @Override
     public Expression visitProg(Expr.ProgContext ctx) {
+        code = ".class "+className+"\n.super java/lang/Object\n.method public <init>()V\n    .limit stack 1\n    .limit locals 1\n    aload_0\n" +
+                "    invokespecial java/lang/Object/<init>()V\n    return\n.end method\n\n";
         for (int j = 0; j < ctx.methodCaller().size(); j++) {
             if(ctx.methodCaller().get(j).methodMember() != null){
                 visitMethodMember(ctx.methodCaller().get(j).methodMember(), true);
@@ -51,6 +45,7 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
             }
 
         }
+
         return super.visitProg(ctx);
     }
 
@@ -67,12 +62,18 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
         String toMakeMethod = "";
         if(ctx.nameGiver().getText().equals("main")){
             localCounter = 1;
-            toMakeMethod = ".method public static main([Ljava/lang/String;)V \n" + " .limit stack 100\n"  + " .limit locals "+ localLimits.get(ctx.nameGiver().getText()) + "\n" + " .line "+ ctx.FUNC().getSymbol().getLine() + "\n"+visitBlock(ctx.block(),true) +"   return\n"+ ".end method \n\n";
+            toMakeMethod = ".method public static main([Ljava/lang/String;)V \n" + " .limit stack 100\n"  + " .limit locals "+ (localLimits.get(ctx.nameGiver().getText())+1) + "\n" + " .line "+ ctx.FUNC().getSymbol().getLine() + "\n"+visitBlock(ctx.block(),true) +"   return\n"+ ".end method \n\n";
         }else{
-            String type = examineTyp(ctx.type().getText());
-            toMakeMethod = ".method public static " +ctx.nameGiver().getText() + "(" + visiter(ctx) + ")" + type +"\n" + " .limit stack 4\n" + " .limit locals "+ localLimits.get(ctx.nameGiver().getText()) + "\n" + " .line "+ ctx.FUNC().getSymbol().getLine() + "\n"+visitBlock(ctx.block(),true)+".end method \n\n";
+            if(ctx.type() != null){
+                String type = examineTyp(ctx.type().getText());
+                toMakeMethod = ".method public static " +ctx.nameGiver().getText() + "(" + visiter(ctx) + ")" + type +"\n" + " .limit stack 4\n" + " .limit locals "+ (localLimits.get(ctx.nameGiver().getText())+1) + "\n" + " .line "+ ctx.FUNC().getSymbol().getLine() + "\n"+visitBlock(ctx.block(),true)+".end method \n\n";
+            }else{
+                toMakeMethod = ".method public static " +ctx.nameGiver().getText() + "(" + visiter(ctx) + ")V" +"\n" + " .limit stack 4\n" + " .limit locals "+ (localLimits.get(ctx.nameGiver().getText())+1) + "\n" + " .line "+ ctx.FUNC().getSymbol().getLine() + "\n"+visitBlock(ctx.block(),true)+".end method \n\n";
+            }
         }
         code += toMakeMethod;
+        s = currentReturnType;
+
         return super.visitMethodCaller(ctx);
     }
 
@@ -107,6 +108,7 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
                 a.add(examineReturnTyp(s.getText()));
                 variableTyp.put(s.parent.getChild(nameGiverCounter).getText(),examineReturnTyp((s.getText()).toLowerCase()));
                 variablePlace.put(s.parent.getChild(nameGiverCounter).getText(),localCounter);
+                variableForPrint.put(s.parent.getChild(nameGiverCounter).getText(), examineTyp(s.getText()));
                 notInit.put(s.parent.getChild(nameGiverCounter).getText(),examineReturnTyp((s.getText()).toLowerCase()));
                 if(examineTyp(s.getText()).equals("D")){
                     localCounter +=2;
@@ -126,8 +128,12 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
             return visitBlockStatements(ctx.blockStatements(), true) + visitReturner(ctx.returner(), true);
         }else if(ctx.returner() != null && ctx.blockStatements() == null){
             return visitReturner(ctx.returner(), true);
-        }else if(ctx.returner() == null && ctx.blockStatements() != null){
+        }else if(ctx.returner() == null && ctx.blockStatements() != null && !(ctx.parent.getChild(0).getText().equals("for") ||ctx.parent.getChild(0).getText().equals("if"))){
             return visitBlockStatements(ctx.blockStatements(), true) + "   return\n";
+        } else if (ctx.parent.getChild(0).getText().equals("for") ||ctx.parent.getChild(0).getText().equals("if")) {
+            return visitBlockStatements(ctx.blockStatements(), true);
+        } else if(ctx.returner() == null && ctx.blockStatements() == null){
+            return "   return\n";
         }
         return "";
     }
@@ -146,7 +152,7 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
         if(ctx.localvariableInit() != null){
             inStatement += visitLocalvariableInit(ctx.localvariableInit(), true);
         }else if(ctx.methodCall() != null){
-            inStatement += visitMethodCall(ctx.methodCall(),true);
+            inStatement += visitMethodCall(ctx.methodCall(),"");
         }else if(ctx.if_and_or_else_expression() != null){
             inStatement += visitIf_and_or_else_expression(ctx.if_and_or_else_expression(), true);
         }else if(ctx.for_loop() != null){
@@ -181,10 +187,12 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
 
     public String visitReturner(Expr.ReturnerContext ctx, boolean ist) {
         String returnString = "";
-        String examineType = examineReturnTyp(currentReturnType);
         //boolean true = iconst_1 false = iconst_0
         if(currentReturnType != null && ctx.expression() != null){
+            String examineType = examineReturnTyp(currentReturnType);
             return " .line " +ctx.RETURN().getSymbol().getLine()+ "\n"+visitExpression(ctx.expression(),examineType)+"   "+examineType + "return"+ "\n";
+        }else if(ctx.expression() == null){
+            return " .line " + ctx.RETURN().getSymbol().getLine()+ "\n"+"   return\n";
         }
         return returnString;
     }
@@ -198,7 +206,6 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
     }
     public String visitLocalvariableInit(Expr.LocalvariableInitContext ctx, boolean ist) {
         String varInit = "";
-
         if(ctx.VAR() != null && ctx.ASSERT() != null){
             String examineTyp = examineReturnTyp(ctx.type().getText());
             currentInitType = examineTyp;
@@ -206,7 +213,8 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
            varInit = visitExpression(ctx.expression(0), examineTyp) +"   "+examineTyp + "store "+localCounter+"\n";
            variablePlace.put(ctx.nameGiver().getText(),localCounter);
            variableTyp.put(ctx.nameGiver().getText(),examineTyp);
-           if(examineTyp.equals("d")){
+            variableForPrint.put(ctx.nameGiver().getText(), examineTyp(ctx.type().getText()));
+           if(examineTyp.equals("d") || examineTyp.equals("a")){
                localCounter+=2;
            }else{
                localCounter++;
@@ -222,10 +230,16 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
             //entweder vorhanden und loaden,storen oder aus temp map holen und storen
             //gucken ob vorhanden
             if(notInit.containsKey(ctx.nameGiver().getText())){
-                varInit = visitExpression(ctx.expression(0),notInit.get(ctx.nameGiver().getText())) + "   "+ notInit.get(ctx.nameGiver().getText())+ "store "+localCounter+"\n";
-                variablePlace.put(ctx.nameGiver().getText(),localCounter);
-                variableTyp.put(ctx.nameGiver().getText(),notInit.get(ctx.nameGiver().getText()));
-                if(notInit.get(ctx.nameGiver().getText()).equals("d")){
+                if(notInit.containsKey(ctx.nameGiver().getText()) && variablePlace.containsKey(ctx.nameGiver().getText())) {
+                    varInit = visitExpression(ctx.expression(0), notInit.get(ctx.nameGiver().getText())) + "   " + notInit.get(ctx.nameGiver().getText()) + "store " + variablePlace.get(ctx.nameGiver().getText()) + "\n";
+                    variableForPrint.put(ctx.nameGiver().getText(), notInit.get(ctx.nameGiver().getText()));
+                }else{
+                    varInit = visitExpression(ctx.expression(0), notInit.get(ctx.nameGiver().getText())) + "   " + notInit.get(ctx.nameGiver().getText()) + "store " + localCounter + "\n";
+                    variablePlace.put(ctx.nameGiver().getText(), localCounter);
+                    variableTyp.put(ctx.nameGiver().getText(), notInit.get(ctx.nameGiver().getText()));
+                    variableForPrint.put(ctx.nameGiver().getText(), notInit.get(ctx.nameGiver().getText()));
+                }
+                if(notInit.get(ctx.nameGiver().getText()).equals("d") || notInit.get(ctx.nameGiver().getText()).equals("a")){
                     localCounter+=2;
                 }else{
                     localCounter++;
@@ -282,9 +296,15 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
                 String left = visitExpression(ctx.left,typ);
                 String right = visitExpression(ctx.right,typ);
                 if(!s.equals("a")){
-                    literal += left + right + "   " + s + "sub \n   ifne Label"+labelc+"\n";
+
+                   // literal += left + right + "   " + s + "sub \n   ifne Label"+labelc+"\n";
+                    if(s.equals("i")) {
+                        literal += left + right + "   " + s + "sub \n   ifeq Label" + labelc + "\n";
+                    } else if (s.equals("d")) {
+                        literal += left + right + "   " + "dcmpl \n   ifeq Label" + labelc + "\n";
+                    }
                     if(!typ.equals("if") && !typ.equals("for")){
-                        literal += "   iconst_1\n   goto Label"+(labelc+1)+"\n"
+                        literal += "   iconst_0\n   goto Label"+(labelc+1)+"\n"
                                 + labelcalcEquals(labelc);
                     }
                     currentForLabel = labelc;
@@ -292,8 +312,7 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
                     labelc+=2;
                 }else {
                     literal += left +right + "   " + "invokestatic java/util/Objects/equals(Ljava/lang/Object;Ljava/lang/Object;)Z\n";
-                    if(typ.equals("if")){
-                        literal +="   ifne Label"+labelc+"\n";
+                    if(typ.equals("if")){                        literal +="   ifne Label"+labelc+"\n";
                         currentIfLabel = labelc;
                         labelc+=2;
                     }
@@ -302,18 +321,22 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
                 String left = visitExpression(ctx.left,typ);
                 String right = visitExpression(ctx.right,typ);
                 if(!s.equals("a")){
-                    literal += left + right + "   " + s + "sub \n   ifeq Label"+labelc+"\n";
+                    if(s.equals("i")) {
+                        literal += left + right + "   " + s + "sub \n   ifeq Label" + labelc + "\n";
+                    } else if (s.equals("d")) {
+                        literal += left + right + "   " + "dcmpl \n   ifeq Label" + labelc + "\n";
+                    }
                     if(!typ.equals("if") && !typ.equals("for")){
                         literal += "   iconst_1\n   goto Label"+(labelc+1)+"\n"
-                                + labelcalcEquals(labelc);
+                                + labelcalcUnary_Not(labelc);
                     }
                     currentForLabel = labelc;
                     currentIfLabel = labelc;
                     labelc+=2;}
                 else {
-                    literal += left +right + "   " + "invokestatic java/util/Objects/equals(Ljava/lang/Object;Ljava/lang/Object;)Z\n"+"   ifeq Label"+labelc+"\n";
+                    literal += left +right + "   " + "invokestatic java/util/Objects/equals(Ljava/lang/Object;Ljava/lang/Object;)Z\n"+"   ifne Label"+labelc+"\n";
                     if(!typ.equals("if")){
-                        literal+="   iconst_1\n"+"   goto Label"+(labelc+1)+"\n" +labelcalcEquals(labelc);
+                        literal+="   iconst_1\n"+"   goto Label"+(labelc+1)+"\n" +labelcalcUnary_Not(labelc);
                     }
                     currentIfLabel = labelc;
                     labelc+=2;
@@ -321,10 +344,15 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
             }else if(ctx.rel_op.getText().equals("<")){
                 String left = visitExpression(ctx.left,typ);
                 String right = visitExpression(ctx.right,typ);
-                literal+= left+right + "   "+ s+ "sub\n   ifge Label"+labelc+"\n";
+                //literal+= left+right + "   "+ s+ "sub\n   ifge Label"+labelc+"\n";
+                if(s.equals("i")) {
+                    literal += left + right + "   " + s + "sub \n   ifge Label" + labelc + "\n";
+                } else if (s.equals("d")) {
+                    literal += left + right + "   " + "dcmpg \n   ifge Label" + labelc + "\n";
+                }
                 if(!typ.equals("if") && !typ.equals("for")){
                     literal += "   iconst_1\n   goto Label"+(labelc+1)+"\n"
-                            + labelcalcEquals(labelc);
+                            + labelcalcUnary_Not(labelc);
                 }
                 currentForLabel = labelc;
                 currentIfLabel = labelc;
@@ -332,10 +360,15 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
             }else if(ctx.rel_op.getText().equals("<=")){
                 String left = visitExpression(ctx.left,typ);
                 String right = visitExpression(ctx.right,typ);
-                literal += left+right + "   "+ s+ "sub\n   ifgt Label"+labelc+"\n";
+                // += left+right + "   "+ s+ "sub\n   ifgt Label"+labelc+"\n";
+                if(s.equals("i")) {
+                    literal += left + right + "   " + s + "sub \n   ifgt Label" + labelc + "\n";
+                } else if (s.equals("d")) {
+                    literal += left + right + "   " + "dcmpg \n   ifgt Label" + labelc + "\n";
+                }
                 if(!typ.equals("if") && !typ.equals("for")){
                     literal += "   iconst_1\n   goto Label"+(labelc+1)+"\n"
-                            + labelcalcEquals(labelc);
+                            + labelcalcUnary_Not(labelc);
                 }
                 currentForLabel = labelc;
                 currentIfLabel = labelc;
@@ -343,10 +376,15 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
             }else if(ctx.rel_op.getText().equals(">")){
                 String left = visitExpression(ctx.left,typ);
                 String right = visitExpression(ctx.right,typ);
-                literal += left+right+ "   "+ s+ "sub\n   ifle Label"+labelc+"\n";
+                //literal += left+right+ "   "+ s+ "sub\n   ifle Label"+labelc+"\n";
+                if(s.equals("i")) {
+                    literal += left + right + "   " + s + "sub \n   ifle Label" + labelc + "\n";
+                } else if (s.equals("d")) {
+                    literal += left + right + "   " + "dcmpg \n   ifle Label" + labelc + "\n";
+                }
                 if(!typ.equals("if") && !typ.equals("for")){
                     literal += "   iconst_1\n   goto Label"+(labelc+1)+"\n"
-                            + labelcalcEquals(labelc);
+                            + labelcalcUnary_Not(labelc);
                 }
                 currentForLabel = labelc;
                 currentIfLabel = labelc;
@@ -354,7 +392,12 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
             }else if(ctx.rel_op.getText().equals(">=")){
                 String left = visitExpression(ctx.left,typ);
                 String right= visitExpression(ctx.right,typ);
-                literal += left+right+ "   "+ s+ "sub\n   iflt Label"+labelc+"\n";
+                //literal += left+right+ "   "+ s+ "sub\n   iflt Label"+labelc+"\n";
+                if(s.equals("i")) {
+                    literal += left + right + "   " + s + "sub \n   iflt Label" + labelc + "\n";
+                } else if (s.equals("d")) {
+                    literal += left + right + "   " + "dcmpg \n   iflt Label" + labelc + "\n";
+                }
                 if(!typ.equals("if") && !typ.equals("for")){
                     literal += "   iconst_1\n   goto Label"+(labelc+1)+"\n"
                             + labelcalcEquals(labelc);
@@ -384,7 +427,7 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
     }
 
     private String labelcalcEquals(int labelc) {
-        return "Label"+labelc+":\n   iconst_0\nLabel"+(labelc+1)+":\n";
+        return "Label"+labelc+":\n   iconst_1\nLabel"+(labelc+1)+":\n";
     }
 
 
@@ -400,7 +443,7 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
 
             finish = visitTypeProduction(ctx.typeProduction(),type);
         }else if(ctx.methodCall() != null){
-            finish = visitMethodCall(ctx.methodCall(),true);
+            finish = visitMethodCall(ctx.methodCall(),type);
         }
         return finish;
     }
@@ -408,11 +451,11 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
 
     public String visitPrintCall(Expr.PrintCallContext ctx, boolean a) {
         String pri = "";
-        pri +=visitMethodCall(ctx.methodCall(), true);
+        pri +=visitMethodCall(ctx.methodCall(), "");
         return pri;
     }
 
-    public String visitMethodCall(Expr.MethodCallContext ctx, boolean a) {
+    public String visitMethodCall(Expr.MethodCallContext ctx, String a) {
         StringBuilder methodCall = new StringBuilder();
         List<String> typs = methodWithTyps.get(ctx.nameGiver().getText());
         if(ctx.nameGiver().getText().equals("Println")){
@@ -422,7 +465,7 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
             int co = 0;
             if(typs == null) {
                 for (Expr.ExpressionContext e : ctx.expression()) {
-                    methodCall.append(visitExpression(e, null));
+                    methodCall.append(visitExpression(e, ""));
                 }
             }else{
                 for (Expr.ExpressionContext e : ctx.expression()) {
@@ -433,7 +476,18 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
 
         }
         if(!ctx.nameGiver().getText().equals("Println")) {
-            methodCall.append("   invokestatic Go/").append(ctx.nameGiver().getText()).append("(").append(methodWithMembers.get(ctx.nameGiver().getText())).append(")").append(methodsAndReturns.get(ctx.nameGiver().getText())).append("\n");
+            if(methodWithMembers.get(ctx.nameGiver().getText()) != null && methodsAndReturns.get(ctx.nameGiver().getText()) != null) {
+                methodCall.append("   invokestatic " + className + "/").append(ctx.nameGiver().getText()).append("(").append(methodWithMembers.get(ctx.nameGiver().getText())).append(")").append(methodsAndReturns.get(ctx.nameGiver().getText())).append("\n");
+            }else if(methodWithMembers.get(ctx.nameGiver().getText()) == null && methodsAndReturns.get(ctx.nameGiver().getText()) != null){
+                methodCall.append("   invokestatic " + className + "/").append(ctx.nameGiver().getText()).append("(").append(")").append(methodsAndReturns.get(ctx.nameGiver().getText())).append("\n");
+            }else if(methodWithMembers.get(ctx.nameGiver().getText()) == null && methodsAndReturns.get(ctx.nameGiver().getText()) == null){
+                methodCall.append("   invokestatic " + className + "/").append(ctx.nameGiver().getText()).append("(").append(")").append("V").append("\n");
+
+            }
+            if(a.equals("d") && methodsAndReturns.get(ctx.nameGiver().getText()).equals("I")){
+                methodCall.append("i2d").append("\n");
+            }
+
         }else{
             //in printcall current return noch rein
             methodCall.append("   invokevirtual java/io/PrintStream/println(").append(analyzeExpr(ctx)).append(")V").append("\n");
@@ -452,25 +506,27 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
     private String analyzeExprDepper(Expr.ExpressionContext expression) {
         if(expression.primaryExpr()!= null){
             if(expression.primaryExpr().typeProduction()!= null){
-                if(expression.primaryExpr().typeProduction().intliteral() != null || expression.primaryExpr().typeProduction().boolliteral() != null){
+                if(expression.primaryExpr().typeProduction().intliteral() != null){
                     return "I";
                 }else if(expression.primaryExpr().typeProduction().floatliteral() != null){
                     return "D";
                 }else if(expression.primaryExpr().typeProduction().stringliteral() != null){
                     return "Ljava/lang/String;";
+                } else if (expression.primaryExpr().typeProduction().boolliteral() != null) {
+                    return "Z";
                 }
             } else if (expression.primaryExpr().nameGiver() != null) {
-                return formatter(variableTyp.get(expression.primaryExpr().nameGiver().getText()));
+                return variableForPrint.get(expression.primaryExpr().nameGiver().getText());
             } else if (expression.primaryExpr().methodCall() != null) {
                 return methodsAndReturns.get(expression.primaryExpr().methodCall().nameGiver().getText());
             }
         } else if (expression.add_op != null || expression.mul_op != null) {
             return analyzeExprDepper(expression.left);
         } else if (expression.rel_op != null || expression.LOGICAL_AND() != null || expression.LOGICAL_OR() != null) {
-            return "I";
+            return "Z";
         } else if (expression.unary_op != null) {
             if(expression.unary_op.getText().equals("!")){
-                return "I";
+                return "Z";
             }else{
                 return analyzeExprDepper(expression.right);
             }
@@ -494,7 +550,7 @@ public class CodeGenerator extends ExprBaseVisitor<Expression> {
 
     public String visitTypeProduction(Expr.TypeProductionContext ctx, String typ) {
         if(ctx.intliteral() != null){
-            if(!currentInitType.equals("d") && !typ.equals("d")){
+            if(!typ.equals("d")){
                 s= "i";
                 return "   ldc "+ctx.intliteral().getText()+ "\n";
             }else{

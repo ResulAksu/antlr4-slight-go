@@ -46,7 +46,7 @@ public class Main {
                     Typechecker typechecker = new Typechecker();
                     typechecker.visit(tree);
                     Map<String,Integer> m = typechecker.getLocalsCount();
-
+                    String className = changeInput(args[1]);
                     List<Exception> exceptions = typechecker.getExceptionList();
                     if (!exceptions.isEmpty()) {
                         System.err.println("Typechecking Errors: ");
@@ -54,11 +54,11 @@ public class Main {
                             System.err.println(exc.getMessage());
                         }
                     }else{
-                        CodeGenerator codeGenerator = new CodeGenerator(m);
+                        CodeGenerator codeGenerator = new CodeGenerator(m, className);
                         codeGenerator.visit(tree);
 
                         try {
-                            writeInFile(codeGenerator.getCode());
+                            writeInFile(codeGenerator.getCode(), className);
                         }catch (IOException e){
                             e.printStackTrace();
                         }
@@ -69,8 +69,23 @@ public class Main {
 
         }
 
-    private static void writeInFile(String code) throws IOException {
-        File myObj = new File("Go.j");
+    private static String changeInput(String input){
+        StringBuilder sb = new StringBuilder();
+        char[] chars = input.toCharArray();
+
+        for (char c:
+             chars) {
+            if(c == '.'){
+                break;
+            }
+            sb.append(c);
+        }
+    return sb.toString();
+    }
+
+    private static void writeInFile(String code,String name) throws IOException {
+        String fileName = name+".j";
+        File myObj = new File(fileName);
         myObj.createNewFile();
         FileWriter fw = new FileWriter(myObj);
         fw.write(code);
