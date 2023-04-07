@@ -1,21 +1,21 @@
 # antlr4-slight-go
-Compilerbau Projekt für eine schwache Version von GO
-
-Typechecking done. 
-<br>
+Compiler Desing project for an slight Version of GO.
 <hr/>
-Working on CodeGenerator:
-<p>Java.class to Jasmin Bytecode jar inkludiert ausführen mit:</p>
-<p>javac file.java</p>
-<p>java -jar jasmin.jar file.class</p>
+ANTLR is used to build the grammar.
+<hr/>
+Jasmin is used to form the parsed language into java byte code, to create a .class-File. 
+
 
 <hr/>
-<p>how to compile:</p>
+<p>Use Instructions</p>
 
-<p>-To build Visitor from Grammar: </p>
+<p>-To build the grammar and within the visitor: </p>
 <p>java -jar antlr-4.11.1-complete.jar -visitor Expr.g4 ExprLexer.g4</p>
-<p>-To compile all files:</p>
+<hr/>
+<p>-To compole:</p>
 <p>javac -cp antlr-4.11.1-complete.jar *.java</p>
+<hr/>
 <p>-To check if an Input can Compile (Parse,Typecheck)</p>
-<p>java -cp "./antlr-4.11.1-complete.jar;" Main.java -compile input.txt</p>
-
+<p>java -cp "./antlr-4.11.1-complete.jar;" Main.java -compile File.go</p>
+<p>-To see the liveness analyses</p>
+<p>java -cp "./antlr-4.11.1-complete.jar;" Main.java -liveness File.go</p>
