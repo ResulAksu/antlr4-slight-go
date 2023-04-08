@@ -12,7 +12,7 @@ Jasmin is used to form the parsed language into java byte code, to create a .cla
 <p>-To build the grammar and within the visitor: </p>
 <p>java -jar antlr-4.11.1-complete.jar -visitor Expr.g4 ExprLexer.g4</p>
 <hr/>
-<p>-To compole:</p>
+<p>-To compile:</p>
 <p>javac -cp antlr-4.11.1-complete.jar *.java</p>
 <hr/>
 <p>-To check if an Input can Compile (Parse,Typecheck)</p>
